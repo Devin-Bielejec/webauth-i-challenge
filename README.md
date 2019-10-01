@@ -14,15 +14,15 @@ Use `Node.js`, `Express` and `Knex` to build an API that provides **Register** a
 ## Assignment
 
 Sqlite: store user information, so
-
 id
 username
 password
-
 seed: create some basic users with fake passwords?
-
 migration: create table: id, username, password
 
+[X] - sqlite with knex migration and seeds
+[] - knex file with functions
+[] - router/server with api paths etc
 
 ### Complete the following endpoints:
 
