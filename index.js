@@ -13,19 +13,38 @@ const PORT = process.env.PORT || 1;
 
 
 //api calls
-server.post("/users", (req, res) => {
+server.post("/api/register", (req, res) => {
     console.log(req.body);
     const { username, password } = req.body;
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
 
     Users.insertUser({username: username, password: hash})
-    .then(res => {
-        console.log('chicken');
-        res.status(200).json({message: "User was insertion successful!"})    
+    .then(response => {
+        res.status(200).json({message: "User insertion successful!"})    
     })
     .catch(error => {
         res.status(500).json(error)
+    })
+})
+
+server.post("/api/login", (req, res) => {
+    const { username, password } = req.body;
+
+    Users.checkLogin({username, password})
+    .then(userRes => {
+        console.log(userRes.password);
+        if (userRes.length === 0) {
+            res.status(404).json({message: "User does not exist"})
+        }
+        console.log("here");
+        console.log(password, userRes.password);
+        console.log(bcrypt.compareSync(password, userRes.password));
+        bcrypt.compareSync(password, userRes.password) ? res.status(200).json({message: "Correct credentials!"}) : res.status(404).json({message: "Incorrect Credentials"})
+        
+    })
+    .catch(error => {
+        res.status(500).json({message: "Sever Error"});
     })
 })
 
