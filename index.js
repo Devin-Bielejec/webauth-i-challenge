@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const bcrypt = require("bcryptjs");
 const Users = require("./db");
-const session = reuquire("express-session");
+const session = require("express-session");
 
 dotenv.config();
 
@@ -10,23 +10,24 @@ const server = express();
 server.use(express.json());
 const PORT = process.env.PORT || 1;
 
-server.use(
-    session({
-        name: "Devin",
-        secret: "isSoCool",
-        cookie: {
-            maxAge: 1000 * 30,
-            secure: true,
-        },
+const sessionConfig = {
+    name: "Devin",
+    secret: "isSoCool",
+    cookie: {
+        maxAge: 1000 * 30,
+        secure: false,
         httpOnly: true,
-        resave: false,
-        saveUninitialized: false
-    })
-)
+    },
+    resave: false,
+    saveUninitialized: false
+}
+
+server.use(session(sessionConfig));
 
 //middleware
 const protected = (req, res, next) => {
-    if (req.session && req.session.userId) {
+    console.log("the session is",req.session);
+    if (req.session && req.session.user) {
         next();
     } else {
         res.status(401).json({message: "You shall not pass!"})
@@ -55,13 +56,12 @@ server.post("/api/login", (req, res) => {
 
     Users.checkLogin({username, password})
     .then(userRes => {
-        console.log(userRes.password);
         if (userRes.length === 0) {
             res.status(404).json({message: "User does not exist"})
         }
-        console.log("here");
-        console.log(password, userRes.password);
-        console.log(bcrypt.compareSync(password, userRes.password));
+        req.session.user = username;
+        console.log(req.session.user);
+        console.log(req.session);
         bcrypt.compareSync(password, userRes.password) ? res.status(200).json({message: "Correct credentials! Logged in!"}) : res.status(404).json({message: "Incorrect Credentials"})
         
     })
@@ -70,7 +70,7 @@ server.post("/api/login", (req, res) => {
     })
 })
 
-
+//Get users
 server.get('/api/users', protected, (req, res) => {
     Users.getAllUsers()
       .then(users => res.json(users))
