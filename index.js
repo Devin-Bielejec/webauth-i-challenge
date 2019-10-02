@@ -24,6 +24,16 @@ server.use(
     })
 )
 
+//middleware
+const protected = (req, res, next) => {
+    if (req.session && req.session.userId) {
+        next();
+    } else {
+        res.status(401).json({message: "You shall not pass!"})
+    }
+}
+
+
 //api calls
 server.post("/api/register", (req, res) => {
     console.log(req.body);
@@ -59,5 +69,15 @@ server.post("/api/login", (req, res) => {
         res.status(500).json({message: "Sever Error"});
     })
 })
+
+
+server.get('/api/users', protected, (req, res) => {
+    Users.getAllUsers()
+      .then(users => res.json(users))
+      .catch(err => res.json(err));
+  });
+
+
+
 
 server.listen(PORT, () => console.log(`Server running on ${PORT}`))
