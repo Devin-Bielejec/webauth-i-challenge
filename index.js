@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const bcrypt = require("bcryptjs");
 const Users = require("./db");
+const session = reuquire("express-session");
 
 dotenv.config();
 
@@ -9,8 +10,19 @@ const server = express();
 server.use(express.json());
 const PORT = process.env.PORT || 1;
 
-//middleware
-
+server.use(
+    session({
+        name: "Devin",
+        secret: "isSoCool",
+        cookie: {
+            maxAge: 1000 * 30,
+            secure: true,
+        },
+        httpOnly: true,
+        resave: false,
+        saveUninitialized: false
+    })
+)
 
 //api calls
 server.post("/api/register", (req, res) => {
@@ -40,7 +52,7 @@ server.post("/api/login", (req, res) => {
         console.log("here");
         console.log(password, userRes.password);
         console.log(bcrypt.compareSync(password, userRes.password));
-        bcrypt.compareSync(password, userRes.password) ? res.status(200).json({message: "Correct credentials!"}) : res.status(404).json({message: "Incorrect Credentials"})
+        bcrypt.compareSync(password, userRes.password) ? res.status(200).json({message: "Correct credentials! Logged in!"}) : res.status(404).json({message: "Incorrect Credentials"})
         
     })
     .catch(error => {

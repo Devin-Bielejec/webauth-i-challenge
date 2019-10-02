@@ -19,8 +19,14 @@ const checkLogin = (user) => {
     .select()
 }
 
+const findBy = (arg) => {
+    return db("users")
+    .where(arg)
+}
+
 module.exports = {
     insertUser,
     getAllUsers,
-    checkLogin
+    checkLogin,
+    findBy
 }
